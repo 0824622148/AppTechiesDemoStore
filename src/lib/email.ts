@@ -2,7 +2,9 @@ import { Resend } from "resend"
 import { render } from "@react-email/render"
 import { OrderConfirmationEmail } from "@/emails/OrderConfirmation"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY ?? "placeholder")
+}
 
 export interface OrderEmailItem {
   productName: string
@@ -26,7 +28,7 @@ export async function sendOrderConfirmationEmail(params: {
     })
   )
 
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: process.env.EMAIL_FROM ?? "App Techies <orders@apptechies.co.za>",
     replyTo: process.env.EMAIL_REPLY_TO ?? "support@apptechies.co.za",
     to: params.to,

@@ -45,3 +45,5 @@ next-env.d.ts
 # local database WAL files only (keep dev.db for seeded demo data)
 *.db-shm
 *.db-wal
+
+.vercel
