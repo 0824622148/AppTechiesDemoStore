@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  shortName    String
+  category     Category
+  devices      Int?
+  months       Int?
+  price        Float
+  comparePrice Float?
+  imageFile    String
+  description  String
+  features     String
+  platforms    String
+  isActive     Boolean  @default(true)
+  isFeatured   Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  licenseKeys LicenseKey[]
+  orderItems  OrderItem[]
+}
+
+enum Category {
+  ANTIVIRUS
+  INTERNET_SECURITY
+  TOTAL_SECURITY
+  FAMILY_PACK
+  MAC
+  MOBILE_SECURITY
+  PASSWORD_MANAGER
+  SOHO
+  VPN
+}
+
+model LicenseKey {
+  id        String    @id @default(cuid())
+  productId String
+  keyValue  String    @unique
+  isUsed    Boolean   @default(false)
+  usedAt    DateTime?
+  orderId   String?
+  createdAt DateTime  @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+  order   Order?  @relation(fields: [orderId], references: [id])
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  orderNumber   String      @unique
+  customerEmail String
+  customerName  String
+  status        OrderStatus @default(PENDING)
+  paypalOrderId String?     @unique
+  paypalPayerId String?
+  subtotal      Float
+  total         Float
+  currency      String      @default("ZAR")
+  ipAddress     String?
+  userAgent     String?
+  emailSentAt   DateTime?
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  items       OrderItem[]
+  licenseKeys LicenseKey[]
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  DELIVERED
+  FAILED
+  REFUNDED
+}
+
+model OrderItem {
+  id          String @id @default(cuid())
+  orderId     String
+  productId   String
+  productName String
+  quantity    Int
+  unitPrice   Float
+  lineTotal   Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
